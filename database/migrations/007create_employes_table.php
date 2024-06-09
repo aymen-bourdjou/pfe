@@ -15,12 +15,11 @@ return new class extends Migration
             $table->id('id_employe');
             $table->string('nom_employe');
             $table->string('prenom_employe');
-            $table->string('username');
-            $table->string('password');
-            $table->date('date_debut_session')->nullable();
-            $table->date('date_fin_session')->nullable();
-            $table->string('profil');
+            $table->unsignedBigInteger("id_user_createure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();
+            $table->foreign('id_user_createure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
         });
     }
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\bien;
 use App\Imports\BienImport;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -30,7 +29,9 @@ class bienControllers extends Controller
                 'file'
             ],
         ]);
-        Excel::import(new BienImport, $request->file('import_file'));
+        $id_user_createure = 1;
+        Excel::import(new BienImport($id_user_createure), $request->file('import_file'));
+        //Excel::import(new BienImport, $request->file('import_file'));
         return redirect()->back()->with('status','imported successfuly');
 
     }
@@ -50,14 +51,14 @@ class bienControllers extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nom_bien' => 'required|string',
-            'prix_d_achat' => 'required|numeric',
+            'prix_d_achat' => 'required|string',
             'barcode' => 'required|string',
             'date_achat' => 'required|date',
             'duree_vie' => 'required|integer',
-            'qr_code' => 'required|string',
             'fournisseure' => 'required|string',
             'etas' =>'required|string',
             'no_serie' =>'required|string',
+            'id_user_importateure' => 'required|exists:users,id_user',
         ]);
     
         
@@ -70,10 +71,10 @@ class bienControllers extends Controller
         $cat->barcode=$request->barcode;
         $cat->date_achat=$request->date_achat;
         $cat->duree_vie=$request->duree_vie;
-        $cat->qr_code=$request->qr_code;
         $cat->fournisseure=$request->fournisseure;
         $cat->etas=$request->etas;
         $cat->no_serie=$request->no_serie;
+        $cat->id_user_importateure=$request->id_user_importateure;
         $cat->save();
         return response()->json($cat, 201);
 
@@ -104,7 +105,17 @@ class bienControllers extends Controller
      */
     public function update(Request $request, $id)
     {
-    
+        $request->validate([
+            'nom_bien' => 'string',
+            'prix_d_achat' => 'string',
+            'barcode' => 'string',
+            'date_achat' => 'date',
+            'duree_vie' => 'integer',
+            'fournisseure' => 'string',
+            'etas' =>'string',
+            'no_serie' =>'string',
+            'id_user_updateure' => 'required|exists:users,id_user',
+        ]);
         $bien = Bien::findOrFail($id);
         if (!$bien) {
             return response()->json(['message' => 'Bien non trouvé'], 404);
@@ -123,11 +134,11 @@ class bienControllers extends Controller
         $bien = bien::find($id_bien);
     
         if (!$bien) {
-            return response()->json(['message' => 'Zone non trouvée'], 404);
+            return response()->json(['message' => 'bien non trouvée'], 404);
         }
         
         $bien->delete();
         
-        return response()->json(['message' => 'Zone supprimée avec succès']);
+        return response()->json(['message' => 'bien supprimée avec succès']);
     }
 }

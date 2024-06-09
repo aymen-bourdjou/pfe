@@ -13,9 +13,10 @@ class inventaire extends Model
         'nom_inventaire',
         'etas',
         'observation',
-        'date_creation',
         'date_debut',
         'date_fin',
+        'id_user_updateure',
+        'id_user_createure',
     ];
 
     protected $date=[
@@ -23,5 +24,14 @@ class inventaire extends Model
         'date_debut',
         'date_fin'
     ];
+    public function userCreateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_createure');
+    }
+
+    public function userUpdateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_updateure');
+    }
 }
 

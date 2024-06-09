@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\zone;
 use Illuminate\Http\Request;
-class zonetControllers extends Controller
+use Illuminate\Support\Facades\Validator;
+class zoneControllers extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -28,8 +29,18 @@ class zonetControllers extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'nom_zone' => 'required|string',
+            'id_user_createure' => 'required|exists:users,id_user',
+        ]);
+    
+        // Si la validation échoue, retourner les erreurs
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
         $cat = new zone();
         $cat->nom_zone=$request->nom_zone;
+        $cat->id_user_createure=$request->id_user_createure;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -62,12 +73,13 @@ class zonetControllers extends Controller
     public function update(Request $request, $id)
 {
     $request->validate([
-        'nom_zone' => 'required|string',
+        'nom_zone' => 'string',
+        'id_user_updateure' => 'required|exists:users,id_user',
     ]);
 
     $zone = zone::findOrFail($id); 
     $zone->nom_zone = $request->nom_zone;
-
+    $zone->id_user_updateure = $request->id_user_updateure;
     $zone->save();
 
     return response()->json($zone);

@@ -17,13 +17,13 @@ class Comptage extends Model
         'nom_comptage',
         'etas',
         'observation',
-        'date_creation',
         'date_debut',
         'date_fin',
+        'id_user_updateure',
+        'id_user_createure',
     ];
 
     protected $dates = [
-        'date_creation',
         'date_debut',
         'date_fin',
     ];
@@ -36,5 +36,14 @@ class Comptage extends Model
     public function departement()
     {
         return $this->belongsTo(Departement::class, 'id_departement');
+    }
+    public function userCreateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_createure');
+    }
+
+    public function userUpdateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_updateure');
     }
 }

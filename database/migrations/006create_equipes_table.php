@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id('id_equipe');
             $table->unsignedBigInteger('id_comptage')->nullable();
             $table->string('nom_equipe');
-            $table->date('date_debut')->nullable();
-            $table->date('date_fin')->nullable();
+            $table->unsignedBigInteger("id_user_createure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();
+            $table->foreign('id_user_createure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
             $table->foreign('id_comptage')->references('id_comptage')->on('comptages');
         });
     }

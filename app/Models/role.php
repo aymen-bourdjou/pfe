@@ -12,11 +12,17 @@ class role extends Model
 
     protected $fillable = [
         'nom_role',
-        'date_creation',
-        
+        'id_user_updateure',
+        'id_user_createure',
     ];
 
-    protected $dates = [
-        'date_creation',
-    ];
+    public function userCreateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_createure');
+    }
+
+    public function userUpdateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_updateure');
+    }
 }

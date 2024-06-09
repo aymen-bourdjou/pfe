@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 class roleControllers extends Controller
 {
     /**
@@ -30,9 +29,18 @@ class roleControllers extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'nom_role' => 'required|string',
+            'id_user_createure' => 'required|exists:users,id_user',
+        ]);
+    
+        // Si la validation échoue, retourner les erreurs
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
         $cat = new role();
         $cat->nom_role=$request->nom_role;
-        $cat->date_creation = Carbon::now();
+        $cat->id_user_createure=$request->id_user_createure;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -64,7 +72,7 @@ class roleControllers extends Controller
     {
         $request->validate([
             'nom_role' => 'string',
-            'date_creation'=>'date',
+            'id_user_updateure' => 'required|exists:users,id_user',
         ]);
         $role = role::findOrFail($id_role); 
         if(!$role){

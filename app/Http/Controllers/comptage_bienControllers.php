@@ -39,8 +39,7 @@ class comptage_bienControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_bien' => 'required|exists:biens,id_bien',
             'id_comptage' => 'required|exists:comptages,id_comptage',
-           
-           
+            'id_user_createure' => 'required|exists:users,id_user',
         ]);
 
         if ($validator->fails()) {
@@ -52,7 +51,7 @@ class comptage_bienControllers extends Controller
         $cat = new comptage_bien();
         $cat->id_bien=$request->id_bien;
         $cat->id_comptage=$request->id_comptage;
-    
+        $cat->id_user_createure=$request->id_user_createure;
         $cat->save();
         return response()->json($cat, 201);
         }
@@ -97,15 +96,23 @@ class comptage_bienControllers extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function updateEtas(Request $request, $id_bien, $id_comptage)
+    public function updateEtas(Request $request,$id_comptage ,$id_bien)
     {
         $request->validate([
-            'etas' => 'required|string|in:non inventorié,inventorié,non trouvé',
+            'etas' => 'required|string|in:inventorié,non trouvé',
+            'id_user_updateure' => 'required|exists:users,id_user',
         ]);
+        $comptage = comptage::where('id_comptage',$id_comptage)->first();
 
+        if($comptage){
+
+            if($comptage->etas=='annulé'){
+                return response()->json(['message' => 'impossible d\'inventaurer ce bien car son comptage a été annulé']);
+            }
+        }
         $etas = $request->etas;
-
-        $updateResult = comptage_bien::updatesansid($id_bien, $id_comptage, ['etas' => $etas]);
+        $id_user_updateure = $request->id_user_updateure;
+        $updateResult = comptage_bien::updatesansid($id_bien, $id_comptage, ['etas' => $etas ,  'id_user_updateure' => $id_user_updateure]);
 
         if ($updateResult) {
             return response()->json(['message' => 'Etas updated successfully'], 200);

@@ -15,11 +15,9 @@ class role_permission extends Model
         'id_role',
         'id_permission',
         'date_debut',
+        'id_user_updateure',
+        'id_user_createure',
         
-    ];
-    protected $date=[
-        'date_debut',
-    
     ];
     public function role(){
         return $this->belongTo(role::class,'id_role');
@@ -39,5 +37,14 @@ class role_permission extends Model
         return self::where('id_role', $id_role)
                    ->where('id_permission', $id_permission)
                    ->update($attributes);
+    }
+    public function userCreateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_createure');
+    }
+
+    public function userUpdateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_updateure');
     }
 }

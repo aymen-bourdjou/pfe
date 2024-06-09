@@ -36,8 +36,8 @@ class departement_bienControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_bien' => 'required|exists:biens,id_bien',
             'id_departement' => 'required|exists:departements,id_departement',
-            'date_affectation' => 'nullable|date',
             'affecter_a' => 'required|string',
+            'id_user_importateure' => 'required|exists:users,id_user',
         ]);
 
         if ($validator->fails()) {
@@ -46,8 +46,8 @@ class departement_bienControllers extends Controller
         $cat = new departement_bien();
         $cat->id_bien=$request->id_bien;
         $cat->id_departement=$request->id_departement;
-        $cat->date_affectation=$request->date_affectation;
         $cat->affecter_a=$request->affecter_a;
+        $cat->id_user_importateure=$request->id_user_importateure;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -77,14 +77,23 @@ class departement_bienControllers extends Controller
     /**
      * Update the specified resource in storage.
      */
-    /*public function update(Request $request, departement_bien $id_departement_bien)
+    public function update(Request $request,$id_departement , $id_bien)
     {
-        $cat = departement_bien::find($id_departement_bien);
-        if(!$cat){
+        $request->validate([
+            'etas_affectation' => 'required|string|in:retiré',
+            'id_user_updateure' => 'required|exists:users,id_user',
+        ]);
+        $cat = departement_bien::where('id_departement', $id_departement)
+        ->where('id_bien', $id_bien)
+        ->firstOrFail();
+
+      if(!$cat){
             return response()->json(['message' => 'not found'], 404);
         }
-        $cat->save();
-        return $cat; $cat->save();
+        departement_bien::updatesansid($id_departement,$id_bien, ['etas_affectation' => 'retiré' ,  'id_user_updateure' =>$request->id_user_updateure]);
+        $cat = departement_bien::where('id_departement', $id_departement)
+        ->where('id_bien', $id_bien)
+        ->firstOrFail();
         return response()->json($cat);
     }
 
@@ -96,9 +105,9 @@ class departement_bienControllers extends Controller
         $deleted = departement_bien::deleteByCompositeKey($id_departement ,$id_bien);
 
         if ($deleted) {
-            return response()->json(['message' => 'Supprimé avec succès']);
+            return response()->json(['message' => ' combinaison Supprimé avec succès']);
         } else {
-            return response()->json(['message' => 'Zone non trouvée'], 404);
+            return response()->json(['message' => 'combinaison non trouvée'], 404);
         }
     }
 }

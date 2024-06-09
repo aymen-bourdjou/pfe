@@ -37,8 +37,7 @@ class equipeControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_comptage' => 'required|exists:comptages,id_comptage',
             'nom_equipe' => 'required|string',
-            'date_debut' => 'nullable|date',
-            'date_fin' => 'nullable|date|after_or_equal:date_debut',
+            'id_user_createure' => 'required|exists:users,id_user',
         ]);
 
         // Si la validation échoue, retourner les erreurs
@@ -48,8 +47,7 @@ class equipeControllers extends Controller
         $cat= new equipe();
         $cat->id_comptage=$request->id_comptage;
         $cat->nom_equipe=$request->nom_equipe;
-        $cat->date_debut=$request->date_debut;
-        $cat->date_fin=$request->date_fin;
+        $cat->id_user_createure=$request->id_user_createure;
         $cat->save();
         return response()->json($cat, 201);
 
@@ -81,10 +79,9 @@ class equipeControllers extends Controller
     public function update(Request $request,  $id_equipe)
     {
         $request->validate([
-            'id_comptage' => 'exists:comptages,id_comptage',
+            //'id_comptage' => 'exists:comptages,id_comptage',
             'nom_equipe' => 'string',
-            'date_debut' => 'nullable|before_or_equal:date',
-            'date_fin' => 'nullable|date|after_or_equal:date_debut',
+           'id_user_updateure' => 'required|exists:users,id_user',
             
         ]);
         $cat = equipe::findOrFail($id_equipe);

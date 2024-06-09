@@ -17,7 +17,12 @@ class BienImport implements ToCollection, WithHeadingRow
     * @param Collection $collection
     */
     
+   protected $id_user_createure; // Ajoutez cette propriété
 
+    public function __construct($id_user_createure)
+    {
+        $this->id_user_createure = $id_user_createure;
+    }
     public function collection(Collection $rows)
     {
         
@@ -32,23 +37,28 @@ class BienImport implements ToCollection, WithHeadingRow
                     $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($date_input);
                     $date_formatted = $date->format('Y/m/d');
             }
-
+            
             $bien = bien::where('barcode', $row['code'])->first();
             if ($bien) {
-                $bien->update([
-                    'etas'          => $row['etas'],
-                ]);
+                
+                if ($bien->etas != $row['etas'] ) {
+                    $bien->etas = $row['etas'];
+                    $bien->id_user_updateure = $this->id_user_createure;
+                    $bien->save();
+                }
+                   
             } else {
                 $bien = bien::create([
                     'nom_bien'      => $row['libelle'],
                     'prix_d_achat'  => $row['prix'],
-                    'barcode'       => $row['code'],
+                    'barcode'       => $row['code'],             
                     'date_achat'    => $date_formatted,
                     'duree_vie'     => $row['vie'],
-                    'qr_code'       => $row['code'],
                     'fournisseure'  => $row['bil'],
                     'etas'          => $row['etas'],
                     'no_serie'      => $row['no_serie'],
+                    'id_user_importateure' => $this->id_user_createure,
+
                 ]);
             }
         
@@ -61,21 +71,41 @@ class BienImport implements ToCollection, WithHeadingRow
             }
         
             if ($departement && $bien && $zone) {
-                $departement_bien = departement_bien::where('id_bien', $bien->id_bien)->first();
-                if($departement_bien){
-                       departement_bien::updatesansid($bien->id_bien, ['id_departement' => $departement->id_departement, 'affecter_a' => $row['affectation']]);
-                    
+                $departement_bien = departement_bien::where('id_bien', $bien->id_bien)
+                ->where('etas_affectation', '!=', 'retiré')
+                ->first();
+                if($departement_bien && $departement_bien->id_departement !=  $departement->id_departement ){
+                    departement_bien::updatesansid($departement_bien->id_departement ,$bien->id_bien, ['etas_affectation' => 'retiré' ,  'id_user_updateure' =>$this->id_user_createure]);
+                    $departement_bien2 = departement_bien::where('id_bien', $bien->id_bien)
+                    ->where('id_departement', $departement->id_departement )
+                    ->first();
+                    if($departement_bien2){
+                        departement_bien::updatesansid($departement->id_departement ,$bien->id_bien, ['etas_affectation' => 'en cours' ,  'id_user_updateure' =>$this->id_user_createure]);
+                    }else{
+                       departement_bien::create([
+                        'id_bien'        => $bien->id_bien,
+                        'id_departement' => $departement->id_departement,
+                        'affecter_a'     => $row['affectation'],
+                        'id_user_importateure' => $this->id_user_createure,
+                    ]);    
+                    }
+                   
                 }else{
-                departement_bien::create([
+                if(!$departement_bien){
+                //       departement_bien::updatesansid($bien->id_bien, ['id_departement' => $departement->id_departement, 'affecter_a' => $row['affectation']]);
+                   departement_bien::create([
                     'id_bien'        => $bien->id_bien,
                     'id_departement' => $departement->id_departement,
                     'affecter_a'     => $row['affectation'],
-                ]);
+                    'id_user_importateure' => $this->id_user_createure,
+                ]); 
                 }
+                
+                
             }
         }
         
-    
+        }
     
     
     

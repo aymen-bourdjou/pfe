@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\equipe_employe;
+use App\Models\equipe_user;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-class equipe_employeControllers extends Controller
+class equipe_userControllers extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $equipe_employe= equipe_employe::all();
-        return response()->json($equipe_employe);
+        $equipe_user= equipe_user::all();
+        return response()->json($equipe_user);
     }
 
     /**
@@ -27,7 +27,7 @@ class equipe_employeControllers extends Controller
     /**
      * Store a newly created resource in storage.
      * 'id_equipe',
-        *'id_employe',
+        *'id_user',
         *'date_debut',
         *'date_fin',
         *'role',
@@ -36,22 +36,18 @@ class equipe_employeControllers extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id_equipe' => 'required|exists:equipes,id_equipe',
-            'id_employe' => 'required|exists:employes,id_employe',
-            'date_debut' => 'nullable|date',
-            'date_fin' => 'nullable|date|after_or_equal:date_debut',
-            'role' => 'required|string',
+            'id_user' => 'required|exists:users,id_user',
+            'id_user_createure' => 'required|exists:users,id_user',
         ]);
 
         
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-        $cat = new equipe_employe();
+        $cat = new equipe_user();
         $cat->id_equipe=$request->id_equipe;
-        $cat->id_employe=$request->id_employe;
-        $cat->date_debut=$request->date_debut;
-        $cat->date_fin=$request->date_fin;
-        $cat->role=$request->role;
+        $cat->id_user=$request->id_user;
+        $cat->id_user_createure=$request->id_user_createure;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -59,10 +55,10 @@ class equipe_employeControllers extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id_equipe, $id_employe)
+    public function show($id_equipe, $id_user)
 {
-    $cat = equipe_employe::where('id_equipe', $id_equipe)
-                                   ->where('id_employe', $id_employe)
+    $cat = equipe_user::where('id_equipe', $id_equipe)
+                                   ->where('id_user', $id_user)
                                    ->first();
 
     if(!$cat){
@@ -75,7 +71,7 @@ class equipe_employeControllers extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    /*public function edit(equipe_employe $equipe_employe)
+    /*public function edit(equipe_user $equipe_user)
     {
         //
     }
@@ -83,9 +79,9 @@ class equipe_employeControllers extends Controller
     /**
      * Update the specified resource in storage.
      */
-    /*public function update(Request $request, $id_equipe, $id_employe)
+    /*public function update(Request $request, $id_equipe, $id_user)
     {
-        $update = equipe_employe::updatebycompositekey($id_equipe, $id_employe);
+        $update = equipe_user::updatebycompositekey($id_equipe, $id_user);
 
         if ($update) {
             return response()->json(['message' => 'modifier avec succès']);
@@ -98,9 +94,9 @@ class equipe_employeControllers extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id_equipe,$id_employe)
+    public function destroy($id_equipe,$id_user)
     {
-        $deleted = equipe_employe::deleteByCompositeKey($id_equipe, $id_employe);
+        $deleted = equipe_user::deleteByCompositeKey($id_equipe, $id_user);
 
         if ($deleted) {
             return response()->json(['message' => 'Supprimé avec succès']);

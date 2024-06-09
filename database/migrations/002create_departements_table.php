@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id('id_departement');
             $table->unsignedBigInteger('id_zone');
             $table->string ('nom_departement');
-            $table->timestamps();
+            $table->unsignedBigInteger("id_user_createure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
+            $table->timestamps(); 
+            $table->foreign('id_user_createure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
             $table->foreign('id_zone')->references('id_zone')->on('zones');
         });
     }

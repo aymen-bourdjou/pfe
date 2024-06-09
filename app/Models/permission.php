@@ -13,5 +13,7 @@ class permission extends Model
     protected $fillable = [
         'nom_permission',
         'route_permission',
+        
     ];
+    
 }

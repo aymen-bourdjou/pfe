@@ -2,14 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\zonetControllers;
+use App\Http\Controllers\zoneControllers;
 use App\Http\Controllers\permissionControllers;
 use App\Http\Controllers\roleControllers;
 use App\Http\Controllers\role_permissionControllers;
 use App\Http\Controllers\userControllers;
 use App\Http\Controllers\inventaireControllers;
 use App\Http\Controllers\equipeControllers;
-use App\Http\Controllers\equipe_employeControllers;
+use App\Http\Controllers\equipe_userControllers;
 use App\Http\Controllers\employeControllers;
 use App\Http\Controllers\departementControllers;
 use App\Http\Controllers\departement_bienControllers;
@@ -32,16 +32,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('zone')->group(function () {
-    Route::get('/liste_zone', [zonetControllers::class, 'index']);
-    Route::post('/ajouter_zone', [zonetControllers::class, 'store']);
-    Route::get('/afiicher_zone/{id_zone}', [zonetControllers::class, 'show']);
-    Route::post('/modifier_zone/{id_zone}', [zonetControllers::class, 'update']);
-    Route::delete('/suprimer_zone/{id_zone}', [zonetControllers::class, 'destroy']);
+    Route::get('/liste_zone', [zoneControllers::class, 'index']);
+    Route::post('/ajouter_zone', [zoneControllers::class, 'store']);
+    Route::get('/afiicher_zone/{id_zone}', [zoneControllers::class, 'show']);
+    Route::post('/modifier_zone/{id_zone}', [zoneControllers::class, 'update']);
+    Route::delete('/suprimer_zone/{id_zone}', [zoneControllers::class, 'destroy']);
 });
 
 Route::prefix('inventaire')->group(function () {
     Route::get('/liste_inventaire', [inventaireControllers::class, 'index']);
-    Route::post('/lancer_inventaire/{id_inventaire}', [inventaireControllers::class, 'lancer']);
     Route::post('/ajouter_inventaire', [inventaireControllers::class, 'store']);
     Route::get('/afiicher_inventaire/{id_inventaire}', [inventaireControllers::class, 'show']);
     Route::post('/modifier_inventaire/{id_inventaire}', [inventaireControllers::class, 'update']);
@@ -58,12 +57,12 @@ Route::prefix('equipe')->group(function () {
 });
 
 
-Route::prefix('equipe-employe')->group(function () {
-    Route::get('/liste_equipe_employe', [equipe_employeControllers::class, 'index']);
-    Route::post('/ajouter_equipe_employe', [equipe_employeControllers::class, 'store']);
-    Route::get('/afiicher_equipe_employe/{id_equipe}/{id_employe}', [equipe_employeControllers::class, 'show']);
-    Route::post('/modifier_equipe_employe/{id_equipe}/{id_employe}', [equipe_employeControllers::class, 'update']);
-    Route::delete('/suprimer_equipe_employe/{id_equipe}/{id_employe}', [equipe_employeControllers::class, 'destroy']);
+Route::prefix('equipe-user')->group(function () {
+    Route::get('/liste_equipe_user', [equipe_userControllers::class, 'index']);
+    Route::post('/ajouter_equipe_user', [equipe_userControllers::class, 'store']);
+    Route::get('/afiicher_equipe_user/{id_equipe}/{id_user}', [equipe_userControllers::class, 'show']);
+    Route::post('/modifier_equipe_user/{id_equipe}/{id_user}', [equipe_userControllers::class, 'update']);
+    Route::delete('/suprimer_equipe_user/{id_equipe}/{id_user}', [equipe_userControllers::class, 'destroy']);
 });
 
 Route::prefix('employe')->group(function (){
@@ -95,7 +94,6 @@ Route::prefix('comptage')->group(function () {
     Route::get('/exel_comptage', [comptageControllers::class, 'import']);
     Route::get('/liste_comptage', [comptageControllers::class, 'index']);
     Route::post('/ajouter_comptage', [comptageControllers::class, 'store']);
-    Route::post('/lancer_comptage/{id_comptage}', [comptageControllers::class, 'lancer']);
     Route::get('/afiicher_comptage/{id_comptage}', [comptageControllers::class, 'show']);
     Route::post('/modifier_comptage/{id_comptage}', [comptageControllers::class, 'update']);
     Route::delete('/suprimer_comptage/{id_comptage}', [comptageControllers::class, 'destroy']);

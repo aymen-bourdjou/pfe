@@ -18,11 +18,9 @@ class comptage_bien extends Model
         'id_bien',
         'id_comptage',
         'etas',
+        'id_user_updateure',
+        'id_user_createure',
     
-    ];
-
-    protected $dates = [
-        'date_de_comptage',
     ];
 
     public function bien()
@@ -40,10 +38,24 @@ class comptage_bien extends Model
                    ->where('id_bien', $id_bien)
                    ->delete();
     }
+    public static function deleteByKey($id_comptage)
+    {
+        return self::where('id_comptage', $id_comptage)
+                   ->delete();
+    }
     public static function updatesansid($id_bien, $id_comptage, array $attributes)
 {
     return self::where('id_bien', $id_bien)
                ->where('id_comptage', $id_comptage)
                ->update($attributes);
+}
+public function userCreateur()
+{
+    return $this->belongsTo(User::class, 'id_user_createure');
+}
+
+public function userUpdateur()
+{
+    return $this->belongsTo(User::class, 'id_user_updateure');
 }
 }

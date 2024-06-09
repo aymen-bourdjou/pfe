@@ -18,14 +18,14 @@ class departement_bien extends Model
     protected $fillable = [
         'id_bien',
         'id_departement',
-        'date_affectation',
         'affecter_a',
+        'etas_affectation',
+        'id_user_importateure',
+        'id_user_updateure',
         
     ];
 
-    protected $dates = [
-        'date_affectation',
-    ];
+    
 
     public function bien()
     {
@@ -42,8 +42,19 @@ class departement_bien extends Model
                    ->where('id_bien', $id_bien)
                    ->delete();
     }
-    public static function updatesansid($id_bien, array $attributes)
+    public static function updatesansid($id_departement, $id_bien, array $attributes)
     {
-        return self::where('id_bien', $id_bien)->update($attributes);
+        return self::where('id_bien', $id_bien)
+        ->where('id_departement',$id_departement)
+        ->update($attributes);
+    }
+
+    public function userImportateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_importateure');
+    }
+    public function userUpdateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_updateure');
     }
 }

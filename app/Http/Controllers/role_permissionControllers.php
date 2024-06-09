@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\role_permission;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 class role_permissionControllers extends Controller
 {
@@ -33,6 +32,7 @@ class role_permissionControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_role' => 'required|exists:roles,id_role',
             'id_permission' => 'required|exists:permissions,id_permission',
+            'id_user_createure' => 'required|exists:users,id_user',
         ]);
 
         if ($validator->fails()) {
@@ -48,7 +48,7 @@ class role_permissionControllers extends Controller
         $cat = new role_permission();
         $cat->id_role=$request->id_role;
         $cat->id_permission=$request->id_permission;
-        $cat->date_debut=Carbon::now();
+        $cat->id_user_createure=$request->id_user_createure;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -79,7 +79,7 @@ return response()->json($x);
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request,  $id_role ,$id_permission)
+    /*public function update(Request $request,  $id_role ,$id_permission)
     {
         $request->validate([
             'date_debut' => 'required|date',
@@ -102,7 +102,7 @@ return response()->json($x);
         $deleted = role_permission::deleteByCompositeKey($id_role ,$id_permission);
 
         if ($deleted) {
-            return response()->json(['message' => 'Supprimé avec succès']);
+            return response()->json(['message' => 'combinaison Supprimé avec succès']);
         } else {
             return response()->json(['message' => 'combinaison non trouvée'], 404);
         }

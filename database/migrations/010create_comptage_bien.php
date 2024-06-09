@@ -15,8 +15,11 @@ return new class extends Migration
             $table->unsignedBigInteger('id_bien');
             $table->unsignedBigInteger('id_comptage');
             $table->enum('etas', ['inventorié', 'non inventorié', 'non trouvé'])->default('non inventorié');
-            
+            $table->unsignedBigInteger("id_user_createure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();
+            $table->foreign('id_user_createure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
             $table->foreign('id_bien')->references('id_bien')->on('biens');
             $table->foreign('id_comptage')->references('id_comptage')->on('comptage');
             $table->primary(['id_comptage', 'id_bien']);

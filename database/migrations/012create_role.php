@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table-> id('id_role');
             $table->string('nom_role');
-            $table->date('date_creation')->nullable();
+            $table->unsignedBigInteger("id_user_createure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();
+            $table->foreign('id_user_createure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
         });
     }
 

@@ -18,11 +18,14 @@ return new class extends Migration
             $table->string('barcode')->nullable();
             $table->date('date_achat')->nullable();
             $table->integer('duree_vie')->nullable();
-            $table->text('qr_code')->nullable();
             $table->string('fournisseure')->nullable();
             $table->string('etas')->nullable();
             $table->string('no_serie');
+            $table->unsignedBigInteger("id_user_importateure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();
+            $table->foreign('id_user_importateure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
         });
     }
 

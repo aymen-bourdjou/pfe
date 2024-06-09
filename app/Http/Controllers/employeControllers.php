@@ -38,9 +38,7 @@ class employeControllers extends Controller
         $validator = Validator::make($request->all(), [
             'nom_employe' => 'required|string',
             'prenom_employe' => 'required|string',
-            'username' => 'required|string|unique:employes',
-            'password' => 'required|string',
-            'profil' => 'required|string',
+            'id_user_createure' => 'required|exists:users,id_user',
         ]);
 
         // Si la validation échoue, retourner les erreurs
@@ -50,9 +48,7 @@ class employeControllers extends Controller
         $cat=new employe();
         $cat->nom_employe=$request->nom_employe;
         $cat->prenom_employe=$request->prenom_employe;
-        $cat->username=$request->username;
-        $cat->password=$request->password;
-        $cat->profil=$request->profil;
+        $cat->id_user_createure=$request->id_user_createure;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -82,6 +78,11 @@ class employeControllers extends Controller
      */
     public function update(Request $request,  $id_employe)
     {
+        $request->validate([
+            'nom_employe' => 'string',
+            'prenom_employe' => 'string',
+            'id_user_updateure' => 'required|exists:users,id_user',
+        ]);
         $cat= employe::findOrFail($id_employe);
         if(!$cat){
             return response()->json(['message' => 'not found'], 404);
@@ -98,11 +99,11 @@ class employeControllers extends Controller
         $employe = employe::find($id_employe);
     
         if (!$employe) {
-            return response()->json(['message' => 'Zone non trouvée'], 404);
+            return response()->json(['message' => 'employe non trouvée'], 404);
         }
         
         $employe->delete();
         
-        return response()->json(['message' => 'Zone supprimée avec succès']);
+        return response()->json(['message' => 'employe supprimée avec succès']);
     }
 }

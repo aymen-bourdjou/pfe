@@ -14,6 +14,8 @@ class equipe extends Model
         'nom_equipe',
         'date_debut',
         'date_fin',
+        'id_user_updateure',
+        'id_user_createure',
 
     ];
     protected $date=[
@@ -25,5 +27,14 @@ class equipe extends Model
 
     public function comptage(){
         return $this->belongTo(Comptage::class,'id_comptage');
+    }
+    public function userCreateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_createure');
+    }
+
+    public function userUpdateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_updateure');
     }
 }

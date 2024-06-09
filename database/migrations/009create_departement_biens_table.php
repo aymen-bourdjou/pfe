@@ -15,8 +15,12 @@ return new class extends Migration
             $table->unsignedBigInteger('id_bien');
             $table->unsignedBigInteger('id_departement');
             $table->string('affecter_a');
-            $table->date('date_affectation')->nullable();
+            $table->enum('etas_affectation', ['en cours', 'retiré'])->default('en cours');
+            $table->unsignedBigInteger("id_user_importateure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();
+            $table->foreign('id_user_importateure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
             $table->foreign('id_bien')->references('id_bien')->on('biens');
             $table->foreign('id_departement')->references('id_departement')->on('departements');
             $table->primary(['id_departement', 'id_bien']);

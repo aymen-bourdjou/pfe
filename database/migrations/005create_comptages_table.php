@@ -18,10 +18,13 @@ return new class extends Migration
             $table->string('nom_comptage');
             $table->enum('etas', ['en attente de lancement', 'en cours', 'annulé','cloturé'])->default('en attente de lancement');
             $table->string('observation')->nullable();
-            $table->date('date_creation')->nullable();
             $table->date('date_debut')->nullable();
             $table->date('date_fin')->nullable();
+            $table->unsignedBigInteger("id_user_createure");
+            $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();
+            $table->foreign('id_user_createure')->references('id_user')->on('users');
+            $table->foreign('id_user_updateure')->references('id_user')->on('users');
             $table->foreign('id_inventaire')->references('id_inventaire')->on('inventaires');
             $table->foreign('id_departement')->references('id_departement')->on('departements');
             

@@ -24,6 +24,15 @@ class User extends Authenticatable
         'email',
         'password',
         'id_role',
+        'id_employe',
+        'date_debut_session',
+        'date_fin_session',
+        'id_user_updateure',
+        'id_user_createure',
+    ];
+    protected $dates = [
+        'date_debut_session',
+        'date_fin_session',
     ];
 
     /**
@@ -47,5 +56,17 @@ class User extends Authenticatable
     ];
     public function role (){
         return $this->belongTo(role::class,'id_role');
+    }
+    public function employe (){
+        return $this->belongTo(employe::class,'id_employe');
+    }
+    public function userCreateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_createure');
+    }
+
+    public function userUpdateur()
+    {
+        return $this->belongsTo(User::class, 'id_user_updateure');
     }
 }
