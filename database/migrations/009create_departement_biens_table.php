@@ -15,7 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_bien');
             $table->unsignedBigInteger('id_departement');
             $table->string('affecter_a');
-            $table->enum('etas_affectation', ['en cours', 'retiré'])->default('en cours');
+            $table->enum('etas_affectation', ['en cours', 'retire'])->default('en cours');
             $table->unsignedBigInteger("id_user_importateure");
             $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();

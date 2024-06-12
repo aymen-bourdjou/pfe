@@ -6,6 +6,7 @@ use App\Models\comptage_bien;
 use App\Models\comptage;
 use App\Models\departement_bien;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 class comptage_bienControllers extends Controller
 {
@@ -39,7 +40,7 @@ class comptage_bienControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_bien' => 'required|exists:biens,id_bien',
             'id_comptage' => 'required|exists:comptages,id_comptage',
-            'id_user_createure' => 'required|exists:users,id_user',
+            
         ]);
 
         if ($validator->fails()) {
@@ -51,7 +52,7 @@ class comptage_bienControllers extends Controller
         $cat = new comptage_bien();
         $cat->id_bien=$request->id_bien;
         $cat->id_comptage=$request->id_comptage;
-        $cat->id_user_createure=$request->id_user_createure;
+        $cat->id_user_createure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
         }
@@ -99,20 +100,20 @@ class comptage_bienControllers extends Controller
     public function updateEtas(Request $request,$id_comptage ,$id_bien)
     {
         $request->validate([
-            'etas' => 'required|string|in:inventorié,non trouvé',
-            'id_user_updateure' => 'required|exists:users,id_user',
+            'etas' => 'required|string|in:inventorie,non trouve',
+            
         ]);
         $comptage = comptage::where('id_comptage',$id_comptage)->first();
 
         if($comptage){
 
-            if($comptage->etas=='annulé'){
+            if($comptage->etas=='annule'){
                 return response()->json(['message' => 'impossible d\'inventaurer ce bien car son comptage a été annulé']);
             }
         }
         $etas = $request->etas;
-        $id_user_updateure = $request->id_user_updateure;
-        $updateResult = comptage_bien::updatesansid($id_bien, $id_comptage, ['etas' => $etas ,  'id_user_updateure' => $id_user_updateure]);
+        $id_user_updateure = Auth::user()->id_user;
+        $updateResult = comptage_bien::updatesansid($id_bien, $id_comptage, ['etas' => $etas ,  'id_user_updateure' =>  Auth::user()->id_user]);
 
         if ($updateResult) {
             return response()->json(['message' => 'Etas updated successfully'], 200);

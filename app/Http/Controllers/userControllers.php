@@ -6,6 +6,7 @@ use App\Models\user;
 use App\Models\employe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 class userControllers extends Controller
 {
     /**
@@ -38,7 +39,7 @@ class userControllers extends Controller
             'password' => 'required|string',
             'date_debut_session' =>'required|date',
             'date_fin_session' =>'date',
-            'id_user_createure' => 'required|exists:users,id_user',
+            
         ]);
     
         // Si la validation échoue, retourner les erreurs
@@ -52,7 +53,7 @@ class userControllers extends Controller
         $cat->password=$request->password;
         $cat->id_role=$request->id_role;
         $cat->date_debut_session=$request->date_debut_session;
-        $cat->id_user_createure=$request->id_user_createure;
+        $cat->id_user_createure=Auth::user()->id_user;
         if($request->date_fin_session){
         $cat->date_fin_session=$request->date_fin_session;
         }
@@ -92,13 +93,14 @@ class userControllers extends Controller
         'password' => 'string',
         'date_debut_session' => 'date',
         'date_fin_session' => 'date',
-        'id_user_updateure' => 'required|exists:users,id_user',
+        
     ]);
    
     $cat= user::findOrFail($id_user);
         if(!$cat){
             return response()->json(['message' => 'not found'], 404);
         }
+        $cat->id_user_updateure = Auth::user()->id_user;
         $cat->update($request->all());
         return response()->json($cat);
 }

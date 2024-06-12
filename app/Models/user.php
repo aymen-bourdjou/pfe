@@ -12,13 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens,  Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
+    protected $primaryKey = 'id_user';
     protected $fillable = [
         'name',
         'email',

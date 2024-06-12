@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 class roleControllers extends Controller
 {
     /**
@@ -31,7 +32,7 @@ class roleControllers extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nom_role' => 'required|string',
-            'id_user_createure' => 'required|exists:users,id_user',
+            
         ]);
     
         // Si la validation échoue, retourner les erreurs
@@ -40,7 +41,7 @@ class roleControllers extends Controller
         }
         $cat = new role();
         $cat->nom_role=$request->nom_role;
-        $cat->id_user_createure=$request->id_user_createure;
+        $cat->id_user_createure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -72,14 +73,15 @@ class roleControllers extends Controller
     {
         $request->validate([
             'nom_role' => 'string',
-            'id_user_updateure' => 'required|exists:users,id_user',
+        
         ]);
         $role = role::findOrFail($id_role); 
         if(!$role){
             return response()->json(['message' => 'not found'], 404);
         }
+        $role->id_user_updateure = Auth::user()->id_user;
         $role->update($request->all());
-        $role->save();
+       
 
     return response()->json($role);
     }

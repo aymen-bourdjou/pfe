@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\employe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 class employeControllers extends Controller
 {
     /**
@@ -38,7 +38,7 @@ class employeControllers extends Controller
         $validator = Validator::make($request->all(), [
             'nom_employe' => 'required|string',
             'prenom_employe' => 'required|string',
-            'id_user_createure' => 'required|exists:users,id_user',
+            
         ]);
 
         // Si la validation échoue, retourner les erreurs
@@ -48,7 +48,7 @@ class employeControllers extends Controller
         $cat=new employe();
         $cat->nom_employe=$request->nom_employe;
         $cat->prenom_employe=$request->prenom_employe;
-        $cat->id_user_createure=$request->id_user_createure;
+        $cat->id_user_createure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -81,12 +81,12 @@ class employeControllers extends Controller
         $request->validate([
             'nom_employe' => 'string',
             'prenom_employe' => 'string',
-            'id_user_updateure' => 'required|exists:users,id_user',
         ]);
         $cat= employe::findOrFail($id_employe);
         if(!$cat){
             return response()->json(['message' => 'not found'], 404);
         }
+        $cat->id_user_updateure = Auth::user()->id_user;
         $cat->update($request->all());
         return response()->json($cat);
     }

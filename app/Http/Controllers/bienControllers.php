@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\bien;
 use App\Imports\BienImport;
+use App\Imports\BienImportsansinv;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
-
+use Illuminate\Support\Facades\Auth;
 class bienControllers extends Controller
 {
     /**
@@ -22,6 +23,24 @@ class bienControllers extends Controller
     {
         return view('index');
     }
+   
+    public function importe_exel_data_sansinv(Request $request)
+{
+    $request->validate([
+        'import_file' => [
+            'required',
+            'file'
+        ],
+    ]);
+
+    try {
+        Excel::import(new BienImportsansinv, $request->file('import_file'));
+        return response()->json(['status' => 'Imported successfully'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error importing file: ' . $e->getMessage()], 400);
+    }
+}
+
     public function importe_exel_data(Request $request){
         $request->validate([
             'import_file'=>[
@@ -29,11 +48,12 @@ class bienControllers extends Controller
                 'file'
             ],
         ]);
-        $id_user_createure = 1;
-        Excel::import(new BienImport($id_user_createure), $request->file('import_file'));
-        //Excel::import(new BienImport, $request->file('import_file'));
-        return redirect()->back()->with('status','imported successfuly');
-
+        try {
+        Excel::import(new BienImport($request->id_inventaire), $request->file('import_file'));
+        return response()->json(['status' => 'Imported successfully'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error importing file: ' . $e->getMessage()], 400);
+    }
     }
 
     /**
@@ -58,7 +78,7 @@ class bienControllers extends Controller
             'fournisseure' => 'required|string',
             'etas' =>'required|string',
             'no_serie' =>'required|string',
-            'id_user_importateure' => 'required|exists:users,id_user',
+            
         ]);
     
         
@@ -74,7 +94,7 @@ class bienControllers extends Controller
         $cat->fournisseure=$request->fournisseure;
         $cat->etas=$request->etas;
         $cat->no_serie=$request->no_serie;
-        $cat->id_user_importateure=$request->id_user_importateure;
+        $cat->id_user_importateure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
 
@@ -114,13 +134,14 @@ class bienControllers extends Controller
             'fournisseure' => 'string',
             'etas' =>'string',
             'no_serie' =>'string',
-            'id_user_updateure' => 'required|exists:users,id_user',
+            
         ]);
         $bien = Bien::findOrFail($id);
         if (!$bien) {
             return response()->json(['message' => 'Bien non trouvé'], 404);
         }
-
+        $bien->id_user_updateure = Auth::user()->id_user;
+        
         $bien->update($request->all());
 
         return response()->json($bien);

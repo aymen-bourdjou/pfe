@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_inventaire');
             $table->unsignedBigInteger('id_departement');
             $table->string('nom_comptage');
-            $table->enum('etas', ['en attente de lancement', 'en cours', 'annulé','cloturé'])->default('en attente de lancement');
+            $table->enum('etas', ['en attente de lancement', 'en cours', 'annule','cloture'])->default('en attente de lancement');
             $table->string('observation')->nullable();
             $table->date('date_debut')->nullable();
             $table->date('date_fin')->nullable();

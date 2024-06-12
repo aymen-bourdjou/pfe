@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('inventaires', function (Blueprint $table) {
             $table->id('id_inventaire');
             $table->string('nom_inventaire');
-            $table->enum('etas', ['en attente de lancement', 'en cours', 'annulé','cloturé'])->default('en attente de lancement');
+            $table->enum('etas', ['en attente de lancement', 'en cours', 'annule','cloture'])->default('en attente de lancement');
             $table->string('observation')->nullable();
             $table->date('date_debut')->nullable(); 
             $table->date('date_fin')->nullable();

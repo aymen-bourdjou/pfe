@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\departement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 class departementControllers extends Controller
 {
     /**
@@ -32,7 +33,7 @@ class departementControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_zone' => 'required|exists:zones,id_zone',
             'nom_departement' => 'required|string',
-            'id_user_createure' => 'required|exists:users,id_user',
+           
         ]);
     
         // Si la validation échoue, retourner les erreurs
@@ -42,7 +43,7 @@ class departementControllers extends Controller
         $cat = new departement();
         $cat->id_zone=$request->id_zone;
         $cat->nom_departement=$request->nom_departement;
-        $cat->id_user_createure=$request->id_user_createure;
+        $cat->id_user_createure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -77,14 +78,14 @@ class departementControllers extends Controller
 {
     $request->validate([
         'nom_departement' => 'required|string',
-        'id_user_updateure' => 'required|exists:users,id_user',
+        
     ]);
 
     $departement = departement::findOrFail($id); 
     $departement->nom_departement = $request->nom_departement;
-    $departement->id_user_updateure =$request->id_user_updateure ;
+    $departement->id_user_updateure = Auth::user()->id_user;
     $departement->save();
-
+    
     return response()->json($departement);
 }
 

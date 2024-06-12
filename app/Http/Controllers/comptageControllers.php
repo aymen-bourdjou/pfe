@@ -9,6 +9,7 @@ use App\Models\departement_bien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 class comptageControllers extends Controller
 {
@@ -49,7 +50,7 @@ class comptageControllers extends Controller
         'id_departement' => 'required|exists:departements,id_departement',
         'nom_comptage' => 'required|string',
         'observation' => 'string',
-        'id_user_createure' => 'required|exists:users,id_user',
+        
     ]);
 
     // Si la validation échoue, retourner les erreurs
@@ -61,7 +62,7 @@ class comptageControllers extends Controller
     $cat->id_inventaire = $request->id_inventaire;
     $cat->id_departement = $request->id_departement;
     $cat->nom_comptage = $request->nom_comptage;
-    $cat->id_user_createure=$request->id_user_createure;
+    $cat->id_user_createure=Auth::user()->id_user;
     if($request->observation){
        $cat->observation=$request->observation;
     }
@@ -112,22 +113,23 @@ class comptageControllers extends Controller
         $request->validate([
             'nom_comptage' => 'string',
             'observation' => 'string',
-            'etas' => 'string|in:en attente de lancement,en cours,annulé,cloturé',
-            'id_user_updateure' => 'required|exists:users,id_user',
+            'etas' => 'string|in:en attente de lancement,en cours,annule,cloture',
+            
         ]);
         $cat=comptage::findOrFail($id_comptage);
+       
         if(!$cat){
             return response()->json(['message' => 'not found'], 404);
         }
         $inventaire =inventaire::where('id_inventaire',$cat->id_inventaire)->first();
         if($inventaire){
-            if($inventaire->etas=='annulé'){
-                return response()->json(['message' => 'impossible de modifier ce comptage car son inventaire a été annulé ']); 
+            if($inventaire->etas=='annule'){
+                return response()->json(['message' => 'impossible de modifier ce comptage car son inventaire a été annule ']); 
             }
-        if($inventaire->etas =='en attente de lancement' && ($request->etas == 'en cours' || $request->etas == 'cloturé' ) ){
-            return response()->json(['message' => 'impossible de lancer ou cloturé le comptage avant de lancer l inventaire']);
+        if($inventaire->etas =='en attente de lancement' && ($request->etas == 'en cours' || $request->etas == 'cloture' ) ){
+            return response()->json(['message' => 'impossible de lancer ou cloture le comptage avant de lancer l inventaire']);
         }}
-        if ($request->has('etas') && $request->etas == 'cloturé') {
+        if ($request->has('etas') && $request->etas == 'cloture') {
             $comptage_bien = comptage_bien::where('id_comptage', $id_comptage)->get();
             $etatNonCloture = $comptage_bien->contains(function ($comptage_bien) {
                 return $comptage_bien->etas == 'non inventorié';
@@ -139,34 +141,34 @@ class comptageControllers extends Controller
                 ], 400);
             }
         }
-        if($cat->etas =='en attente de lancement' && $request->has('etas') && $request->etas == 'cloturé'){
-            return response()->json(['message' => 'impossible de cloturé un comptage en attente de lancement']);
+        if($cat->etas =='en attente de lancement' && $request->has('etas') && $request->etas == 'cloture'){
+            return response()->json(['message' => 'impossible de cloture un comptage en attente de lancement']);
         }
         if($cat->etas =='en cours' && $request->has('etas') && $request->etas == 'en attente de lancement'){
             return response()->json(['message' => 'impossible de rendre en attente de lancement  un comptage en cours']);
         }
-        if($cat->etas =='cloturé' && $request->has('etas') && $request->etas == 'en cours'){
-            return response()->json(['message' => 'impossible de relancer un comptage cloturé']);
+        if($cat->etas =='cloture' && $request->has('etas') && $request->etas == 'en cours'){
+            return response()->json(['message' => 'impossible de relancer un comptage cloture']);
         }
-        if($cat->etas =='cloturé' && $request->has('etas') && $request->etas == 'annulé'){
-            return response()->json(['message' => 'impossible d annuler un comptage cloturé']);
+        if($cat->etas =='cloture' && $request->has('etas') && $request->etas == 'annule'){
+            return response()->json(['message' => 'impossible d annuler un comptage cloture']);
         }
-        if($cat->etas =='cloturé' && $request->has('etas') && $request->etas == 'en attente de lancement'){
-            return response()->json(['message' => 'impossible de mettre en attente de lancement un comptage cloturé']);
+        if($cat->etas =='cloture' && $request->has('etas') && $request->etas == 'en attente de lancement'){
+            return response()->json(['message' => 'impossible de mettre en attente de lancement un comptage cloture']);
         }
-        if($cat->etas =='annulé' && $request->has('etas') && $request->etas == 'en cours'){
-            return response()->json(['message' => 'impossible de relancer un comptage annulé']);
+        if($cat->etas =='annule' && $request->has('etas') && $request->etas == 'en cours'){
+            return response()->json(['message' => 'impossible de relancer un comptage annule']);
         }
-        if($cat->etas =='annulé' && $request->has('etas') && $request->etas == 'en attente de lancement'){
-            return response()->json(['message' => 'impossible de mettre en attente de lancement un comptage annulé']);
+        if($cat->etas =='annule' && $request->has('etas') && $request->etas == 'en attente de lancement'){
+            return response()->json(['message' => 'impossible de mettre en attente de lancement un comptage annule']);
         }
-        if($cat->etas =='annulé' && $request->has('etas') && $request->etas == 'cloturé'){
-            return response()->json(['message' => 'impossible de cloturé un comptage annulé']);
+        if($cat->etas =='annule' && $request->has('etas') && $request->etas == 'cloture'){
+            return response()->json(['message' => 'impossible de cloture un comptage annule']);
         }
-        if($cat->etas =='annulé' && $request->has('etas') && $request->etas == 'annulé'){
+        if($cat->etas =='annule' && $request->has('etas') && $request->etas == 'annule'){
             return response()->json($cat);
         }
-        if($cat->etas =='cloturé' && $request->has('etas') && $request->etas == 'cloturé'){
+        if($cat->etas =='cloture' && $request->has('etas') && $request->etas == 'cloture'){
             return response()->json($cat);
         }
         if($cat->etas =='en attente de lancement' && $request->has('etas') && $request->etas == 'en attente de lancement'){
@@ -175,7 +177,7 @@ class comptageControllers extends Controller
         if($cat->etas =='en cours' && $request->has('etas') && $request->etas == 'en cours'){
             return response()->json($cat);
         }
-        if($request->has('etas') && ($request->etas == 'annulé'|| $request->etas == 'cloturé')){
+        if($request->has('etas') && ($request->etas == 'annule'|| $request->etas == 'cloture')){
             $cat->date_fin = Carbon::now();
         }
         if($request->has('etas') && $request->etas == 'en cours'){
@@ -184,8 +186,11 @@ class comptageControllers extends Controller
         if($request->observation){
             $cat->observation=$request->observation;
         }
-        $cat->etas=$request->etas;
-        $cat->id_user_updateure=$request->id_user_updateure;
+        if($request->etas){
+            $cat->etas=$request->etas;
+        }
+       
+        $cat->id_user_updateure = Auth::user()->id_user;
         $cat->save();
         return response()->json($cat);
     }

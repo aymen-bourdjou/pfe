@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('comptage_biens', function (Blueprint $table) {
             $table->unsignedBigInteger('id_bien');
             $table->unsignedBigInteger('id_comptage');
-            $table->enum('etas', ['inventorié', 'non inventorié', 'non trouvé'])->default('non inventorié');
+            $table->enum('etas', ['inventorie', 'non inventorie', 'non trouve'])->default('non inventorie');
             $table->unsignedBigInteger("id_user_createure");
             $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();

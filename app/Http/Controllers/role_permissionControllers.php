@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\role_permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 class role_permissionControllers extends Controller
 {
     /**
@@ -32,7 +33,7 @@ class role_permissionControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_role' => 'required|exists:roles,id_role',
             'id_permission' => 'required|exists:permissions,id_permission',
-            'id_user_createure' => 'required|exists:users,id_user',
+            
         ]);
 
         if ($validator->fails()) {
@@ -48,7 +49,7 @@ class role_permissionControllers extends Controller
         $cat = new role_permission();
         $cat->id_role=$request->id_role;
         $cat->id_permission=$request->id_permission;
-        $cat->id_user_createure=$request->id_user_createure;
+        $cat->id_user_createure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
     }

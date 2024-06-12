@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\departement_bien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 class departement_bienControllers extends Controller
 {
     /**
@@ -37,7 +38,7 @@ class departement_bienControllers extends Controller
             'id_bien' => 'required|exists:biens,id_bien',
             'id_departement' => 'required|exists:departements,id_departement',
             'affecter_a' => 'required|string',
-            'id_user_importateure' => 'required|exists:users,id_user',
+           
         ]);
 
         if ($validator->fails()) {
@@ -47,7 +48,7 @@ class departement_bienControllers extends Controller
         $cat->id_bien=$request->id_bien;
         $cat->id_departement=$request->id_departement;
         $cat->affecter_a=$request->affecter_a;
-        $cat->id_user_importateure=$request->id_user_importateure;
+        $cat->id_user_importateure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -80,8 +81,8 @@ class departement_bienControllers extends Controller
     public function update(Request $request,$id_departement , $id_bien)
     {
         $request->validate([
-            'etas_affectation' => 'required|string|in:retiré',
-            'id_user_updateure' => 'required|exists:users,id_user',
+            'etas_affectation' => 'required|string|in:retire',
+            
         ]);
         $cat = departement_bien::where('id_departement', $id_departement)
         ->where('id_bien', $id_bien)
@@ -90,7 +91,7 @@ class departement_bienControllers extends Controller
       if(!$cat){
             return response()->json(['message' => 'not found'], 404);
         }
-        departement_bien::updatesansid($id_departement,$id_bien, ['etas_affectation' => 'retiré' ,  'id_user_updateure' =>$request->id_user_updateure]);
+        departement_bien::updatesansid($id_departement,$id_bien, ['etas_affectation' => 'retire' ,  'id_user_updateure' =>Auth::user()->id_user]);
         $cat = departement_bien::where('id_departement', $id_departement)
         ->where('id_bien', $id_bien)
         ->firstOrFail();

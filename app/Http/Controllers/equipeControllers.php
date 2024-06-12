@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\equipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class equipeControllers extends Controller
 {
@@ -37,7 +38,6 @@ class equipeControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_comptage' => 'required|exists:comptages,id_comptage',
             'nom_equipe' => 'required|string',
-            'id_user_createure' => 'required|exists:users,id_user',
         ]);
 
         // Si la validation échoue, retourner les erreurs
@@ -47,7 +47,7 @@ class equipeControllers extends Controller
         $cat= new equipe();
         $cat->id_comptage=$request->id_comptage;
         $cat->nom_equipe=$request->nom_equipe;
-        $cat->id_user_createure=$request->id_user_createure;
+        $cat->id_user_createure=Auth::user()->id_user;
         $cat->save();
         return response()->json($cat, 201);
 
@@ -81,13 +81,12 @@ class equipeControllers extends Controller
         $request->validate([
             //'id_comptage' => 'exists:comptages,id_comptage',
             'nom_equipe' => 'string',
-           'id_user_updateure' => 'required|exists:users,id_user',
-            
         ]);
         $cat = equipe::findOrFail($id_equipe);
         if(!$cat){
             return response()->json(['message' => 'not found'], 404);
         }
+        $cat->id_user_updateure = Auth::user()->id_user;
         $cat->update($request->all());
         return response()->json($cat);
     }
