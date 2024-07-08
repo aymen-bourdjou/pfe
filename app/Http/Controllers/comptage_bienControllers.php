@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\comptage_bien;
+use App\Models\bien;
 use App\Models\comptage;
 use App\Models\departement_bien;
 use Illuminate\Http\Request;
@@ -72,6 +73,48 @@ class comptage_bienControllers extends Controller
         return response()->json($x);
     }
 
+
+
+
+
+    public function showparcomptage($id_comptage)
+    {
+        // Récupérer tous les enregistrements de comptage_bien correspondant à l'id_comptage donné
+        $comptage_biens = comptage_bien::where('id_comptage', $id_comptage)->get();
+    
+        // Vérifier si des enregistrements existent
+        if ($comptage_biens->isEmpty()) {
+            return response()->json(['message' => 'not found'], 404);
+        }
+    
+        // Initialiser un tableau pour stocker les données finales
+        $results = [];
+    
+        foreach ($comptage_biens as $comptage_bien) {
+            // Récupérer les détails du bien associé à ce comptage_bien
+            $bien = bien::where('id_bien', $comptage_bien->id_bien)->first();
+    
+            // Construire chaque objet x pour chaque comptage_bien
+            $x = [
+                'id_bien' => $comptage_bien->id_bien,
+                'id_user_updateure' => $comptage_bien->id_user_updateure,
+                'nom_bien' => $bien->nom_bien, // Utilisation des détails du bien
+                'barcode' => $bien->barcode,
+                'etas'=>$bien->etas,
+                'etas_comptage' => $comptage_bien->etas,
+                'created_at' => $comptage_bien->created_at,
+                'updated_at' => $comptage_bien->updated_at,
+            ];
+    
+            // Ajouter l'objet x au tableau des résultats
+            $results[] = $x;
+        }
+    
+        // Retourner la liste des résultats
+        return response()->json($results);
+    }
+    
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -116,7 +159,11 @@ class comptage_bienControllers extends Controller
         $updateResult = comptage_bien::updatesansid($id_bien, $id_comptage, ['etas' => $etas ,  'id_user_updateure' =>  Auth::user()->id_user]);
 
         if ($updateResult) {
-            return response()->json(['message' => 'Etas updated successfully'], 200);
+            if($request->etas=='non trouve'){
+                return response()->json(['message' => 'Ce bien n\'a pas été trouvé '], 200);
+            }else{
+            return response()->json(['message' => 'Ce bien a été trouvé '], 200);
+        }
         } else {
             return response()->json(['message' => 'Failed to update Etas'], 400);
         }

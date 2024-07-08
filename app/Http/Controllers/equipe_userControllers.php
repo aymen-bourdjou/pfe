@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\equipe_user;
+use App\Models\user;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +39,6 @@ class equipe_userControllers extends Controller
         $validator = Validator::make($request->all(), [
             'id_equipe' => 'required|exists:equipes,id_equipe',
             'id_user' => 'required|exists:users,id_user',
-            
         ]);
 
         
@@ -67,6 +67,31 @@ class equipe_userControllers extends Controller
     }
 
     return response()->json($cat);
+}
+
+public function showparequipe($id_equipe)
+{
+    $cat = equipe_user::where('id_equipe', $id_equipe)->get();
+
+    if(!$cat){
+        return response()->json(['message' => 'not found'], 404);
+    }
+
+    return response()->json($cat);
+}
+public function showparnonequipe($id_equipe)
+{
+    // Récupérer les id_user qui sont dans l'équipe donnée
+    $usersInEquipe = equipe_user::where('id_equipe', $id_equipe)->pluck('id_user');
+
+    // Récupérer les utilisateurs qui ne sont pas dans cette équipe
+    $users = User::whereNotIn('id_user', $usersInEquipe)->get();
+
+    if($users->isEmpty()){
+        return response()->json(['message' => 'No users found'], 404);
+    }
+
+    return response()->json($users);
 }
 
     /**

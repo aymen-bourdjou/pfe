@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\bien;
+use App\Models\departement_bien;
+use App\Models\departement;
+use App\Models\zone;
 use App\Imports\BienImport;
 use App\Imports\BienImportsansinv;
 use Illuminate\Http\Request;
@@ -14,11 +17,11 @@ class bienControllers extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+   /* public function index()
     {
         $bien= bien::all();
         return response()->json($bien);
-    }
+    }*/
     public function import()
     {
         return view('index');
@@ -37,7 +40,7 @@ class bienControllers extends Controller
         Excel::import(new BienImportsansinv, $request->file('import_file'));
         return response()->json(['status' => 'Imported successfully'], 200);
     } catch (\Exception $e) {
-        return response()->json(['error' => 'Error importing file: ' . $e->getMessage()], 400);
+        return response()->json(['error' => 'Error ijojojojmporting file: ' . $e->getMessage()], 400);
     }
 }
 
@@ -79,6 +82,7 @@ class bienControllers extends Controller
             'etas' =>'required|string',
             'no_serie' =>'required|string',
             
+            
         ]);
     
         
@@ -96,7 +100,7 @@ class bienControllers extends Controller
         $cat->no_serie=$request->no_serie;
         $cat->id_user_importateure=Auth::user()->id_user;
         $cat->save();
-        return response()->json($cat, 201);
+        return $cat->id_bien;
 
     }
 
@@ -111,6 +115,50 @@ class bienControllers extends Controller
         }
         return response()->json($x);
     }
+    
+    public function index()
+    {
+        $biens = bien::all();
+        $results = [];
+    
+        foreach ($biens as $bien) {
+            // Récupérer les détails du département associé à ce bien
+            $departement_bien = departement_bien::where('id_bien', $bien->id_bien)
+                ->where('etas_affectation', 'en cours')->first();
+            
+            if ($departement_bien) {
+                $departement = departement::where('id_departement', $departement_bien->id_departement)->first();
+                $zone = zone::where('id_zone', $departement->id_zone)->first();
+    
+                // Construire chaque objet x pour chaque bien
+                $x = [
+                    'nom_zone' => $zone->nom_zone,
+                    'nom_departement' => $departement->nom_departement,
+                    'affecter_a' => $departement_bien->affecter_a,
+                    'id_bien' => $bien->id_bien,
+                    'id_user_updateure' => $bien->id_user_updateure,
+                    'prix_d_achat' => $bien->prix_d_achat,
+                    'date_achat' => $bien->date_achat,
+                    'duree_vie' => $bien->duree_vie,
+                    'fournisseure' => $bien->fournisseure,
+                    'no_serie' => $bien->no_serie,
+                    'id_user_importateure' => $bien->id_user_importateure,
+                    'nom_bien' => $bien->nom_bien,
+                    'barcode' => $bien->barcode,
+                    'etas' => $bien->etas,
+                    'created_at' => $bien->created_at,
+                    'updated_at' => $bien->updated_at,
+                ];
+    
+                // Ajouter l'objet x au tableau des résultats
+                $results[] = $x;
+            }
+        }
+    
+        // Retourner les résultats au format JSON
+        return response()->json($results);
+    }
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -150,16 +198,22 @@ class bienControllers extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id_bien)
+    public function destroy( $id_bien)
     {
         $bien = bien::find($id_bien);
     
         if (!$bien) {
-            return response()->json(['message' => 'bien non trouvée'], 404);
+            return response()->json(['message' => 'bien non trouvee'], 404);
         }
-        
+        $departement_bien = departement_bien::where('id_bien', $id_bien)->first();
+        if ($departement_bien) {
+            departement_bien::deleteByCompositeKey($departement_bien->id_departement,$departement_bien->id_bien);
+            $bien->delete();
+        }
         $bien->delete();
         
-        return response()->json(['message' => 'bien supprimée avec succès']);
+        
+        
+        return response()->json(['message' => 'bien supprimee avec succes']);
     }
 }

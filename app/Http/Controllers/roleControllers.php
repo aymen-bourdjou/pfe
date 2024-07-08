@@ -58,6 +58,16 @@ class roleControllers extends Controller
         return response()->json($x);
     }
 
+    public function show_etas()
+    {
+        
+        $x= role::where('etas','actife')->get();
+        if(!$x){
+            return response()->json(['message' => 'not found'], 404);
+        }
+        return response()->json($x);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -73,13 +83,17 @@ class roleControllers extends Controller
     {
         $request->validate([
             'nom_role' => 'string',
-        
+            'etas' => 'string|in:actife,bloque',
         ]);
         $role = role::findOrFail($id_role); 
         if(!$role){
             return response()->json(['message' => 'not found'], 404);
         }
         $role->id_user_updateure = Auth::user()->id_user;
+        if($request->has('etas')){
+            $role->etas=$request->etas;
+        }
+        
         $role->update($request->all());
        
 

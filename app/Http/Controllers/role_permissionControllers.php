@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\role_permission;
+use App\Models\permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,25 @@ class role_permissionControllers extends Controller
         $role_permission= role_permission::all();
         return response()->json($role_permission);
     }
+
+
+    public function showparrole($id_role)
+    {
+        // Récupère tous les id_permission associés au rôle donné
+        $permissionsInRole = role_permission::where('id_role', $id_role)->pluck('id_permission');
+    
+        // Récupère toutes les permissions dont l'id_permission est dans la liste des permissions récupérées
+        $permissions = permission::whereIn('id_permission', $permissionsInRole)->get();
+    
+        // Si aucune permission n'est trouvée, retourne une réponse 404
+        if ($permissions->isEmpty()) {
+            return response()->json(['message' => 'not found'], 404);
+        }
+    
+        // Retourne les permissions en format JSON
+        return response()->json($permissions);
+    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -68,7 +88,20 @@ return response()->json(['message' => 'not found'], 404);
 return response()->json($x);
         
     }
-
+    public function showparnonrole($id_role)
+    {
+        // Récupérer les id_permission qui sont dans l'équipe donnée
+        $permissionsInrole = role_permission::where('id_role', $id_role)->pluck('id_permission');
+    
+        // Récupérer les utilisateurs qui ne sont pas dans cette équipe
+        $permissions = permission::whereNotIn('id_permission', $permissionsInrole)->get();
+    
+        if($permissions->isEmpty()){
+            return response()->json(['message' => 'No permissions found'], 404);
+        }
+    
+        return response()->json($permissions);
+    }
     /**
      * Show the form for editing the specified resource.
      */

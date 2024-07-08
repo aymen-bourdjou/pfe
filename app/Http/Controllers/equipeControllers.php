@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\comptage;
+use App\Models\equipe_user;
 use App\Models\equipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -65,6 +67,33 @@ class equipeControllers extends Controller
         return response()->json($x);
     }
 
+    public function showparuser($id_user)
+{
+    // Trouver tous les enregistrements dans la table equipe_user correspondant à l'id_user donné
+    $equipe_users = equipe_user::where('id_user', $id_user)->get();
+
+    if ($equipe_users->isEmpty()) {
+        return response()->json(['message' => 'not found'], 404);
+    }
+
+    $equipes = [];
+
+    foreach ($equipe_users as $equipe_user) {
+        $equipe = equipe::where('id_equipe', $equipe_user->id_equipe)->first();
+        if ($equipe) {
+            $equipes[] = $equipe;
+        }
+    }
+
+    if (empty($equipes)) {
+        return response()->json(['message' => 'not found'], 404);
+    }
+
+    return response()->json($equipes);
+}
+
+
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -94,16 +123,22 @@ class equipeControllers extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id_equipe)
-    {
-        $equipe = equipe::find($id_equipe);
-    
-        if (!$equipe) {
-            return response()->json(['message' => 'equipe non trouvée'], 404);
-        }
-        
-        $equipe->delete();
-        
-        return response()->json(['message' => 'equipe supprimée avec succès']);
+    public function destroy($id_equipe)
+{
+    $equipe = Equipe::find($id_equipe);
+
+    if (!$equipe) {
+        return response()->json(['message' => 'Équipe non trouvée'], 404);
     }
+
+    $comptage = Comptage::where('id_comptage', $equipe->id_comptage)->get();
+
+    if ($comptage->isNotEmpty()) {
+        return response()->json(['message' => 'Vous ne pouvez pas supprimer cette équipe car elle est affectée à un comptage']);
+    } else {
+        $equipe->delete();
+        return response()->json(['message' => 'Équipe supprimée avec succès']);
+    }
+}
+
 }

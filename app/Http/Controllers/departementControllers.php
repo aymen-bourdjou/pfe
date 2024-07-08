@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\departement;
+use App\Models\departement_bien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -61,6 +62,18 @@ class departementControllers extends Controller
     
         return response()->json($departement);
     }
+
+
+    public function show_par_zone($id_zone)
+    {
+        $x = departement::where('id_zone', $id_zone)->get();
+    
+        if (!$x) {
+            return response()->json(['message' => 'Departement not found'], 404);
+        }
+    
+        return response()->json($x);
+    }
     
     /**
      * Show the form for editing the specified resource.
@@ -97,11 +110,16 @@ class departementControllers extends Controller
         $departement = departement::find($id_departement);
     
         if (!$departement) {
-            return response()->json(['message' => 'departement non trouvée'], 404);
+            return response()->json(['message' => 'Departement non trouvée'], 404);
         }
-        
-        $departement->delete();
-        
-        return response()->json(['message' => 'departement supprimée avec succès']);
+    
+        $departement_bien = Departement_bien::where('id_departement', $id_departement)->get();
+    
+        if ($departement_bien->isNotEmpty()) {
+            return response()->json(['message' => 'Vous ne pouvais pas suprimer ce departement car des biens lui sont affecte']);
+        } else {
+            $departement->delete();
+            return response()->json(['message' => 'Departement supprimée avec succès']);
+        }
     }
 }

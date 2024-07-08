@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\zone;
+use App\Models\departement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -91,16 +92,22 @@ class zoneControllers extends Controller
      */
     public function destroy($id_zone)
     {
-        $zone = zone::find($id_zone);
+        $zone = Zone::find($id_zone);
     
         if (!$zone) {
             return response()->json(['message' => 'Zone non trouvée'], 404);
         }
-        
-        $zone->delete();
-        
-        return response()->json(['message' => 'Zone supprimée avec succès']);
+    
+        $departements = Departement::where('id_zone', $id_zone)->get();
+    
+        if ($departements->isNotEmpty()) {
+            return response()->json(['message' => 'Pour supprimer cette zone, vous devez d\'abord supprimer les départements qui lui sont affectés.']);
+        } else {
+            $zone->delete();
+            return response()->json(['message' => 'Zone supprimée avec succès']);
+        }
     }
+    
     
 
 }

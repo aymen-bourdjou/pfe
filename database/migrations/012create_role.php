@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table-> id('id_role');
             $table->string('nom_role');
+            $table->enum('etas', ['actife', 'bloque'])->default('actife');
             $table->unsignedBigInteger("id_user_createure");
             $table->unsignedBigInteger("id_user_updateure")->nullable();
             $table->timestamps();

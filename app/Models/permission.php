@@ -11,9 +11,7 @@ class permission extends Model
     protected $primaryKey = 'id_permission';
 
     protected $fillable = [
-        'nom_permission',
-        'route_permission',
-        
+        'nom_permission'
     ];
     
 }

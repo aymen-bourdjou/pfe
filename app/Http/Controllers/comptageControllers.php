@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\comptage_bien;
 use App\Models\comptage;
+use App\Models\equipe;
+use App\Models\equipe_user;
 use App\Models\inventaire;
 use App\Models\departement_bien;
 use Illuminate\Http\Request;
@@ -84,6 +86,7 @@ class comptageControllers extends Controller
             $comptage_bien->save();
         }
     }
+    return response()->json($comptage, 201);
   }
     /**
      * Display the specified resource.
@@ -97,6 +100,51 @@ class comptageControllers extends Controller
         return response()->json($x);
     }
 
+    public function showparidinventaire( $id_inventaire)
+    {
+        $x = comptage::where('id_inventaire', $id_inventaire)->get();
+        if(!$x){
+            return response()->json(['message' => 'not found'], 404);
+        }
+        return response()->json($x);
+    }
+    public function showparidinventaireetuser( $id_inventaire,$id_user)
+    {
+      
+        
+            $equipe_users = equipe_user::where('id_user', $id_user)->get();
+            
+            // Initialise un tableau pour collecter les inventaires
+            $comptages = [];
+        
+            // Si des enregistrements d'équipe sont trouvés
+            if (!$equipe_users->isEmpty()) {
+                // Parcours de chaque enregistrement d'équipe
+                foreach ($equipe_users as $equipe_user) {
+                    // Récupère l'équipe correspondante
+                    $equipe = equipe::where('id_equipe', $equipe_user->id_equipe)->first();
+                    
+                    if ($equipe) {
+                        // Récupère le comptage correspondant à l'équipe
+                        $comptage = comptage::where('id_comptage', $equipe->id_comptage)->first();
+                        
+                        if ($comptage && $comptage->id_inventaire==$id_inventaire) {    
+                            
+                                // Ajoute l'inventaire à la liste des inventaires
+                                $comptages[] = $comptage;
+                            
+                        }
+                    }
+                }
+            }
+        
+            // Utilise la fonction unique pour enlever les doublons
+            $comptages = collect($comptages)->unique('id_comptage')->values()->all();
+        
+            // Retourne la liste des inventaires en format JSON
+            return response()->json($comptages);
+        
+    }
     /**
      * Show the form for editing the specified resource.
      */
@@ -137,7 +185,7 @@ class comptageControllers extends Controller
 
             if ($etatNonCloture) {
                 return response()->json([
-                    'message' => 'Vous ne pouvez pas clôturer le comptage tant que ses bien ne sont pas clôturés'
+                    'message' => 'Vous ne pouvez pas clôturer le comptage tant que ses bien  sont egale a non inventorié'
                 ], 400);
             }
         }
@@ -165,6 +213,7 @@ class comptageControllers extends Controller
         if($cat->etas =='annule' && $request->has('etas') && $request->etas == 'cloture'){
             return response()->json(['message' => 'impossible de cloture un comptage annule']);
         }
+        
         if($cat->etas =='annule' && $request->has('etas') && $request->etas == 'annule'){
             return response()->json($cat);
         }
@@ -180,11 +229,15 @@ class comptageControllers extends Controller
         if($request->has('etas') && ($request->etas == 'annule'|| $request->etas == 'cloture')){
             $cat->date_fin = Carbon::now();
         }
+        
         if($request->has('etas') && $request->etas == 'en cours'){
             $cat->date_debut = Carbon::now();
         }
         if($request->observation){
             $cat->observation=$request->observation;
+        }
+        if($request->nom_comptage){
+            $cat->nom_comptage=$request->nom_comptage;
         }
         if($request->etas){
             $cat->etas=$request->etas;

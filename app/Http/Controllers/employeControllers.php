@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\employe;
+use App\Models\user;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -94,16 +95,21 @@ class employeControllers extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id_employe)
+    public function destroy($id_employe)
     {
         $employe = employe::find($id_employe);
     
         if (!$employe) {
             return response()->json(['message' => 'employe non trouvée'], 404);
         }
-        
-        $employe->delete();
-        
-        return response()->json(['message' => 'employe supprimée avec succès']);
+    
+        $user = user::where('id_employe', $id_employe)->get();
+    
+        if ($user->isNotEmpty()) {
+            return response()->json(['message' => 'Vous ne pouvais pas suprimer cet employe car des user lui sont affecte']);
+        } else {
+            $employe->delete();
+            return response()->json(['message' => 'employe supprimée avec succès']);
+        }
     }
 }

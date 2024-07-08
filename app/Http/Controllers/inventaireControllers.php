@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\inventaire;
 use App\Models\comptage;
+use App\Models\equipe;
+use App\Models\equipe_user;
 use App\Models\comptage_bien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -61,6 +63,47 @@ class inventaireControllers extends Controller
         return response()->json($x);
     }
 
+    public function showspeciale($id_user)
+    {
+        // Récupère les enregistrements d'équipe pour l'utilisateur donné
+        $equipe_users = equipe_user::where('id_user', $id_user)->get();
+        
+        // Initialise un tableau pour collecter les inventaires
+        $inventaires = [];
+    
+        // Si des enregistrements d'équipe sont trouvés
+        if (!$equipe_users->isEmpty()) {
+            // Parcours de chaque enregistrement d'équipe
+            foreach ($equipe_users as $equipe_user) {
+                // Récupère l'équipe correspondante
+                $equipe = equipe::where('id_equipe', $equipe_user->id_equipe)->first();
+                
+                if ($equipe) {
+                    // Récupère le comptage correspondant à l'équipe
+                    $comptage = comptage::where('id_comptage', $equipe->id_comptage)->first();
+                    
+                    if ($comptage) {
+                        // Récupère l'inventaire correspondant au comptage
+                        $inventaire = inventaire::where('id_inventaire', $comptage->id_inventaire)->first();
+                        
+                        if ($inventaire) {
+                            // Ajoute l'inventaire à la liste des inventaires
+                            $inventaires[] = $inventaire;
+                        }
+                    }
+                }
+            }
+        }
+    
+        // Utilise la fonction unique pour enlever les doublons
+        $inventaires = collect($inventaires)->unique('id_inventaire')->values()->all();
+    
+        // Retourne la liste des inventaires en format JSON
+        return response()->json($inventaires);
+    }
+    
+    
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -86,21 +129,33 @@ class inventaireControllers extends Controller
         }
         if ($request->has('etas') && $request->etas == 'cloture' ) {
             $comptages = comptage::where('id_inventaire', $id_inventaire)->get();
-            $etatNonCloture = $comptages->contains(function ($comptage) {
-                return $comptage->etas != 'cloture';
-            });
+$etatNonCloture = false;
 
-            if ($etatNonCloture) {
-                return response()->json([
-                    'message' => 'Vous ne pouvez pas clôturer l\'inventaire tant que ses comptages ne sont pas clôturés'
-                ], 400);
-            }
+foreach ($comptages as $comptage) {
+    if ($comptage->etas != 'cloture') {
+        $etatNonCloture = true;
+        break; // Sortir de la boucle dès qu'on trouve un état non clôturé
+    }
+}
+
+if ($etatNonCloture) {
+    return response()->json(['message' => 'Vous ne pouvez pas clôturer l\'inventaire tant que ses comptages ne sont pas clôturés']);
+}
         }
         if($cat->etas =='en attente de lancement' && $request->has('etas') && $request->etas == 'cloture'){
             return response()->json(['message' => 'impossible de cloture un inventaire en attente de lancement']);
         }
         if($cat->etas =='en cours' && $request->has('etas') && $request->etas == 'en attente de lancement'){
             return response()->json(['message' => 'impossible de rendre en attente de lancement  un inventaire en cours']);
+        }
+        if($cat->etas =='en cours' && $request->has('etas') && $request->etas == 'en cours'){
+            return response()->json(['message' => 'inventaire deja lancer']);
+        }
+        if($cat->etas =='annule' && $request->has('etas') && $request->etas == 'annule'){
+            return response()->json(['message' => 'inventaire deja annule']);
+        }
+        if($cat->etas =='cloture' && $request->has('etas') && $request->etas == 'cloture'){
+            return response()->json(['message' => 'inventaire deja cloture']);
         }
         if($cat->etas =='cloture' && $request->has('etas') && $request->etas == 'en cours'){
             return response()->json(['message' => 'impossible de relancer un inventaire cloture']);
@@ -150,6 +205,11 @@ class inventaireControllers extends Controller
         }
         if($request->observation){
             $cat->observation=$request->observation;
+        }
+        if($request->nom_inventaire){
+
+            $cat->nom_inventaire=$request->nom_inventaire;
+            
         }
         if($request->etas){
         $cat->etas=$request->etas;

@@ -31,7 +31,6 @@ class permissionControllers extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nom_permission' => 'required|string',
-            'route_permission' => 'required|string',
         ]);
     
         // Si la validation échoue, retourner les erreurs
@@ -40,7 +39,6 @@ class permissionControllers extends Controller
         }
         $cat = new permission();
         $cat->nom_permission=$request->nom_permission;
-        $cat->route_permission=$request->route_permission;
         $cat->save();
         return response()->json($cat, 201);
     }
@@ -72,7 +70,6 @@ class permissionControllers extends Controller
     {
         $request->validate([
             'nom_permission' => 'string',
-            'route_permission' => 'string',
             
         ]);
         $cat= permission::findOrFail($id_permission);
